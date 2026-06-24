@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, List, Optional, Tuple
+from typing import Callable, List
 
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -24,7 +24,7 @@ def build_transforms(image_size: int = DEFAULT_IMAGE_SIZE) -> Callable:
     return transforms.Compose([
       transforms.Resize((image_size, image_size)),
       transforms.ToTensor(),
-      transforms.Normalize(mean=[0.5],std=[0.5]),
+      transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
     ])
 
 
@@ -79,4 +79,15 @@ def create_dataloader(
     return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
 
 
-
+# def visualize_dataset_samples(
+#     data_dir: str,
+#     save_path: str,
+#     num_images: int = 20,
+# ) -> None:
+#     """
+#     Visualizing the dataset samples
+#     """
+#     dataloader = create_dataloader(data_dir, batch_size=4, image_size=64, shuffle=False, num_workers=0)
+#     images = next(iter(dataloader))
+#     grid = make_grid(images, nrow=4)
+#     save_image(grid, save_path)
