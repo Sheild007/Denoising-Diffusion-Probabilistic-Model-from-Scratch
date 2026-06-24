@@ -63,3 +63,20 @@ class AnimalDiffusionDataset(Dataset):
         image = self.transform(image)
 
       return image
+
+def create_dataloader(
+    data_dir: str,
+    batch_size: int = 4,
+    image_size: int = DEFAULT_IMAGE_SIZE,
+    shuffle: bool = True,
+    num_workers: int = 0,
+):
+    """
+    Making a DataLoader for the dataset from the given data directory, batch size, image size, shuffle and number of workers.
+    """
+    paths = collect_image_paths(data_dir, SELECTED_CLASSES, IMAGES_PER_CLASS)
+    dataset = AnimalDiffusionDataset(paths, build_transforms(image_size))
+    return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
+
+
+
