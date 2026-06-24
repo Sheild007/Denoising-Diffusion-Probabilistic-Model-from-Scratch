@@ -2,6 +2,7 @@ from typing import Optional, Tuple
 import torch
 from schedule import DiffusionSchedule
 import matplotlib.pyplot as plt
+from torchvision.utils import make_grid, save_image
 
 def sample_timesteps(
     batch_size: int,
@@ -35,7 +36,9 @@ def q_sample(
       return x_t
 
     """
-    return torch.sqrt(schedule.get_sqrt_alpha_bar(t)) * x0 + torch.sqrt(schedule.get_sqrt_one_minus_alpha_bar(t)) * noise
+    sqrt_ab = schedule.get_sqrt_alpha_bar(t)
+    sqrt_omab = schedule.get_sqrt_one_minus_alpha_bar(t)
+    return sqrt_ab * x0 + sqrt_omab * noise
 
 
 def forward_diffusion_pair(
@@ -60,10 +63,12 @@ def visualize_forward_process(
     visualize the forward diffusion process
     """
     x0 = x0[0:1]
+    images = []
     for t in timesteps_to_show:
         noise = torch.randn_like(x0)
-        x_t = q_sample(x0, torch.tensor([t]), noise, schedule)
-        x_t = (x_t + 1) / 2
-        x_t = x_t.clamp(0, 1)
-        plt.imshow(x_t.permute(1, 2, 0))
-        plt.savefig(save_path)
+        t_tensor = torch.tensor([t], device=x0.device, dtype=torch.long)
+        x_t = q_sample(x0, t_tensor, noise, schedule)
+        images.append(((x_t[0] + 1) / 2).clamp(0, 1).cpu())
+   
+    grid = make_grid(torch.stack(images), nrow=len(images))
+    save_image(grid, save_path)
