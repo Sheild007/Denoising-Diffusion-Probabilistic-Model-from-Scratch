@@ -27,3 +27,22 @@ def build_transforms(image_size: int = DEFAULT_IMAGE_SIZE) -> Callable:
       transforms.Normalize(mean=[0.5],std=[0.5]),
     ])
 
+
+def collect_image_paths(
+    data_dir: str,
+    classes: List[str],
+    images_per_class: int,
+) -> List[Path]:
+    """
+    Collecting image paths from the data directory
+    """
+    paths: List[Path] = []
+    for cls_name in classes:
+      cls_path = Path(data_dir) / cls_name
+      img_paths = sorted(cls_path.glob("*.jpg")) + sorted(cls_path.glob("*.jpeg"))
+      img_paths = img_paths[:images_per_class]
+      paths.extend(img_paths)
+  
+    return paths
+
+
