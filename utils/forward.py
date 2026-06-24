@@ -1,6 +1,7 @@
 from typing import Optional, Tuple
 import torch
 from schedule import DiffusionSchedule
+import matplotlib.pyplot as plt
 
 def sample_timesteps(
     batch_size: int,
@@ -49,3 +50,20 @@ def forward_diffusion_pair(
     x_t = q_sample(x0, t, noise, schedule)
     return x_t, t, noise
 
+def visualize_forward_process(
+    x0: "torch.Tensor",
+    schedule,
+    timesteps_to_show: list,
+    save_path: str,
+) -> None:
+    """
+    visualize the forward diffusion process
+    """
+    x0 = x0[0:1]
+    for t in timesteps_to_show:
+        noise = torch.randn_like(x0)
+        x_t = q_sample(x0, torch.tensor([t]), noise, schedule)
+        x_t = (x_t + 1) / 2
+        x_t = x_t.clamp(0, 1)
+        plt.imshow(x_t.permute(1, 2, 0))
+        plt.savefig(save_path)
