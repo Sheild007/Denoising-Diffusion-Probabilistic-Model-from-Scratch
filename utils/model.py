@@ -55,3 +55,19 @@ class DownBlock(nn.Module):
         x = self.res2(x, time_emb)
         return x, self.pool(x)
 
+
+class UpBlock(nn.Module):
+    """
+    Decoder block: upsample + concat skip + ResidualBlock(s).
+    """
+    def __init__(self, in_ch, out_ch, time_emb_dim):
+        super().__init__()
+        self.res1 = ResidualBlock(in_ch, out_ch, time_emb_dim)
+        self.res2 = ResidualBlock(out_ch, out_ch, time_emb_dim)
+        self.up = nn.Upsample(scale_factor=2, mode="nearest")
+    def forward(self, x, skip, time_emb):
+        x = self.up(x)
+        x = torch.cat([x, skip], dim=1)
+        x = self.res1(x, time_emb)
+        x = self.res2(x, time_emb)
+        return x
