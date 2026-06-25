@@ -1,0 +1,5 @@
+# Training plots and generated images go here:
+#   loss_curve.png
+#   forward_noise_grid.png
+#   original_training_grid.png
+#   generated_samples.png
