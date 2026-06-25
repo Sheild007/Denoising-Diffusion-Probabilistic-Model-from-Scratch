@@ -71,3 +71,33 @@ class UpBlock(nn.Module):
         x = self.res1(x, time_emb)
         x = self.res2(x, time_emb)
         return x
+        
+class SimpleUNet(nn.Module):
+    """
+    Lightweight U-Net for noise prediction.
+
+    """
+    def __init__(self, in_channels=3, out_channels=3, base_channels=64, time_emb_dim=256, image_size=64):
+        super().__init__()
+        self.time_mlp = nn.Linear(time_emb_dim, time_emb_dim)
+        self.encoder = nn.ModuleList([DownBlock(base_channels, base_channels * 2, time_emb_dim) for _ in range(3)])
+        self.bottleneck = ResidualBlock(base_channels * 4, base_channels * 4, time_emb_dim)
+        self.decoder = nn.ModuleList([UpBlock(base_channels * 4, base_channels * 2, time_emb_dim) for _ in range(3)])
+        self.out_conv = nn.Conv2d(base_channels, out_channels, 3, padding=1)
+    def forward(self, x, t):
+        t_emb = sinusoidal_timestep_embedding(t, self.time_mlp.in_features)
+        t_emb = self.time_mlp(t_emb)
+        skips = []
+        for down in self.encoder:
+            x, skip = down(x, t_emb)
+            skips.append(skip)
+        x = self.bottleneck(x, t_emb)
+        for up, skip in zip(self.decoder, skips[::-1]):
+            x = up(x, skip, t_emb)
+        return self.out_conv(x) 
+
+def count_parameters(model) -> int:
+    """
+    Log trainable param count for Report.pdf
+    """
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
