@@ -40,3 +40,18 @@ class ResidualBlock(nn.Module):
         h = h + self.time_mlp(time_emb)[:, :, None, None]
         return h + self.skip(x)
         
+
+class DownBlock(nn.Module):
+    """
+    Encoder block with two residual blocks and a max pool layer.
+    """
+    def __init__(self, in_ch, out_ch, time_emb_dim):
+        super().__init__()
+        self.res1 = ResidualBlock(in_ch, out_ch, time_emb_dim)
+        self.res2 = ResidualBlock(out_ch, out_ch, time_emb_dim)
+        self.pool = nn.MaxPool2d(2)
+    def forward(self, x, time_emb):
+        x = self.res1(x, time_emb)
+        x = self.res2(x, time_emb)
+        return x, self.pool(x)
+
