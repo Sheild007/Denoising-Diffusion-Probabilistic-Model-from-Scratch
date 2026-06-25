@@ -7,8 +7,8 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 
-from forward import forward_diffusion_pair
-from loss import diffusion_noise_loss
+from .forward import forward_diffusion_pair
+from .loss import diffusion_noise_loss
 
 
 def train_one_epoch(model, dataloader, schedule, optimizer, device, loss_type="l2", grad_clip=1.0):

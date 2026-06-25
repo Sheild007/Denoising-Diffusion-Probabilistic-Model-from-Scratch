@@ -10,13 +10,11 @@ from pathlib import Path
 
 import torch
 
-sys.path.insert(0, str(Path(__file__).parent / "utils"))
-
-from dataset import create_dataloader
-from schedule import DiffusionSchedule
-from model import SimpleUNet, count_parameters
-from train import train, set_seed, load_checkpoint
-from sample import sample, save_image_grid
+from utils.dataset import create_dataloader
+from utils.schedule import DiffusionSchedule
+from utils.model import SimpleUNet, count_parameters
+from utils.train import train, set_seed, load_checkpoint
+from utils.sample import sample, save_image_grid
 
 
 TIMESTEPS = 1000

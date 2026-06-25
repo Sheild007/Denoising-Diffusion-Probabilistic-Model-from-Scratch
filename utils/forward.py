@@ -1,6 +1,6 @@
 from typing import Optional, Tuple
 import torch
-from schedule import DiffusionSchedule
+from .schedule import DiffusionSchedule
 import matplotlib.pyplot as plt
 from torchvision.utils import make_grid, save_image
 
