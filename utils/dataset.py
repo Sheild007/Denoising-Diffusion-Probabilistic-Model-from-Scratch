@@ -54,9 +54,8 @@ def collect_image_paths(
             raise ValueError(f"No images in {cls_path}")
         if images_per_class is not None:
             if len(img_paths) < images_per_class:
-                raise ValueError(
-                    f"{cls_name}: need {images_per_class}, found {len(img_paths)}"
-                )
+                print(f"[dataset] {cls_name}: requested {images_per_class}, "
+                      f"using {len(img_paths)} available")
             img_paths = img_paths[:images_per_class]
         paths.extend(img_paths)
     return paths
