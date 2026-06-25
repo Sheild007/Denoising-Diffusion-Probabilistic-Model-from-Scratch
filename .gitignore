@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py
+.venv/
+venv/
+
+# Data — do NOT commit or submit dataset
+animal_data/
+animal_datsets.zip
+
+# IDE
+.idea/
+.vscode/
+
+.ipynb_checkpoints/
+
+
+*.log
