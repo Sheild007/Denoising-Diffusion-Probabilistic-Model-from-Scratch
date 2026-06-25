@@ -11,7 +11,7 @@ from forward import forward_diffusion_pair
 from loss import diffusion_noise_loss
 
 
-def train_one_epoch(model, dataloader, schedule, optimizer, device, loss_type="l2"):
+def train_one_epoch(model, dataloader, schedule, optimizer, device, loss_type="l2", grad_clip=1.0):
     """One pass over the dataset; returns mean loss."""
     model.train()
     epoch_losses = []
@@ -22,6 +22,8 @@ def train_one_epoch(model, dataloader, schedule, optimizer, device, loss_type="l
         loss = diffusion_noise_loss(noise, noise_pred, loss_type)
         optimizer.zero_grad()
         loss.backward()
+        if grad_clip > 0:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip)
         optimizer.step()
         epoch_losses.append(loss.item())
     return float(np.mean(epoch_losses))
@@ -40,6 +42,8 @@ def train(
     save_every: int = 100,
     log_every: int = 10,
     config: dict = None,
+    grad_clip: float = 1.0,
+    scheduler=None,
 ) -> List[float]:
     """Full training loop with periodic checkpoints and a loss plot."""
     os.makedirs(save_dir, exist_ok=True)
@@ -48,7 +52,9 @@ def train(
 
     loss_history = []
     for epoch in range(1, epochs + 1):
-        avg_loss = train_one_epoch(model, dataloader, schedule, optimizer, device, loss_type)
+        avg_loss = train_one_epoch(model, dataloader, schedule, optimizer, device, loss_type, grad_clip)
+        if scheduler is not None:
+            scheduler.step()
         loss_history.append(avg_loss)
         if epoch % log_every == 0 or epoch == 1:
             print(f"Epoch {epoch:4d} | loss = {avg_loss:.6f}")
